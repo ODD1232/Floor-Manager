@@ -1,0 +1,177 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int      @id @default(autoincrement())
+  name       String
+  employeeId String   @unique
+  password   String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  roles RoleUser[] // Many-to-many with roles [web:10][cite:1]
+}
+
+model Contractor {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+
+  candidates Candidate[]
+}
+
+model Candidate {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // ── Round 1 basic info ─────────────────────────────────────────────────────
+  name          String
+  phone         String
+  aadharNo      String @unique
+  qualification String
+
+  // ── File paths (stored by multer, served as /uploads/...) ─────────────────
+  photoPath       String? // candidate photo
+  aadharPhotoPath String? // aadhar card photo
+  resumePath      String? // resume PDF
+
+  // ── Experience (optional) ──────────────────────────────────────────────────
+  hasExperience        Boolean @default(false)
+  prevPosition         String?
+  prevCompany          String?
+  prevLocation         String?
+  experienceLetterPath String?
+  relevanceLetterPath  String?
+
+  // ── Contract details (optional) ────────────────────────────────────────────
+  wasOnContract    Boolean     @default(false)
+  contractDuration String? // e.g. "6 months"
+  contractorId     Int?
+  contractor       Contractor? @relation(fields: [contractorId], references: [id])
+
+  // ── Classification (filled after Round 1) ──────────────────────────────────
+  skillLevel   SkillLevel? // skilled / highly_skilled / unskilled
+  department   String?
+  isClassified Boolean     @default(false)
+
+  // ── Round tracking ─────────────────────────────────────────────────────────
+  currentRound  Int             @default(1) // 1, 2, 3
+  round2Type    Round2Type? // test OR interview
+  round21Status RoundStatus? // pass/fail for test
+  round22Status RoundStatus? // pass/fail for interview
+  round3Status  RoundStatus? // final dept approval
+  overallStatus CandidateStatus @default(PENDING)
+
+  // ── Digital signature (Round 3) ────────────────────────────────────────────
+  signaturePath String?
+  signedById    Int?
+  signedAt      DateTime?
+
+  // ── Notes / remarks ────────────────────────────────────────────────────────
+  remarks String?
+}
+
+model Permission {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique // e.g. "view_round3"
+  label     String // e.g. "View Round 3 Approvals"
+  group     String // e.g. "Recruitment", "User Management"
+  createdAt DateTime @default(now())
+
+  rolePerms RolePermission[]
+}
+
+enum SkillLevel {
+  unskilled
+  skilled
+  highly_skilled
+}
+
+enum Round2Type {
+  test // Round 2.1
+  interview // Round 2.2
+}
+
+enum RoundStatus {
+  pending
+  passed
+  failed
+}
+
+enum CandidateStatus {
+  PENDING // just submitted Round 1
+  IN_ROUND2 // moved to round 2
+  IN_ROUND3 // cleared round 2, in final dept round
+  APPROVED // approved by department
+  REJECTED // failed/dumped at any stage
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// After adding above, run:
+//   npx prisma migrate dev --name add_recruitment
+//   node src/seed_contractors.js    (optional seed file below)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Role {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique // e.g., "super_admin", "operator", "viewer"
+  createdAt DateTime @default(now())
+
+  users           RoleUser[]
+  pagePermissions PagePermission[] // Super admin can manage these [web:4]
+  rolePermissions RolePermission[]
+}
+
+model Page {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique // e.g., "candidates", "dashboard"
+  description String? // Optional description
+  createdAt   DateTime @default(now())
+
+  permissions PagePermission[]
+}
+
+model PagePermission {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+
+  roleId Int
+  pageId Int
+
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  page Page @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, pageId]) // One role per page access
+}
+
+model RoleUser {
+  id         Int      @id @default(autoincrement())
+  assignedAt DateTime @default(now())
+
+  userId Int
+  roleId Int
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+}
+
+model RolePermission {
+  id           Int      @id @default(autoincrement())
+  roleId       Int
+  permissionId Int
+  grantedAt    DateTime @default(now())
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+}

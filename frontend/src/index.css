@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+}
+
+@layer components {
+  .input-field {
+    @apply w-full px-4 py-4 bg-white/60 border border-white/50 rounded-2xl 
+           focus:ring-4 focus:ring-blue-500/30 focus:border-blue-500/50 
+           transition-all duration-300 placeholder-gray-400 text-gray-900 shadow-lg;
+  }
+  
+  .btn-primary {
+    @apply w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 
+           text-white font-semibold py-4 px-6 rounded-2xl shadow-2xl hover:shadow-xl 
+           transform hover:-translate-y-1 active:translate-y-0 transition-all duration-200 
+           focus:outline-none focus:ring-4 focus:ring-blue-500/50;
+  }
+}

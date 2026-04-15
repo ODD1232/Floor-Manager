@@ -1,0 +1,25 @@
+# # Logs
+# logs
+# *.log
+# npm-debug.log*
+# yarn-debug.log*
+# yarn-error.log*
+# pnpm-debug.log*
+# lerna-debug.log*
+
+# node_modules
+# dist
+# dist-ssr
+# *.local
+
+# # Editor directories and files
+# .vscode/*
+# !.vscode/extensions.json
+# .idea
+# .DS_Store
+# *.suo
+# *.ntvs*
+# *.njsproj
+# *.sln
+# *.sw?
+# also show those employees which have passed through 3rd round in other list of operators and keep filter in that list add the filter new hiring after on selecting that we see only new hiring new and also show date of the joining and date of round third selection ie after round 3rd is passed then that date and the joining date will be same date or give option of edit in date column only in joining date column, while  in operators list only show joining date, profile photo, emp id, phone no Aadhar no, skill  column,  and  keep option of edit by hr_admin role only or role which we choose in roles and permission page also  there is issue of candidates not moving from one employee
