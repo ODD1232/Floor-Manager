@@ -4,6 +4,7 @@ import NewCandidateForm from "../views/recruitment/NewCandidateForm";
 import Round2Test from "../views/recruitment/Round2Test";
 import Round2Interview from "../views/recruitment/Round2Interview";
 import Round3Department from "../views/recruitment/Round3Department";
+import FinalApproval from "../views/recruitment/FinalApproval";
 
 export const dashboardRoutes = [
   {
@@ -45,7 +46,7 @@ export const dashboardRoutes = [
         label: "Round 2 Test",
         path: "recruitment/round2-test",
         to: "/dashboard/recruitment/round2-test",
-        permission: "recruitment.round2_test.view",
+        permission: "recruitment.round2test.view",
         element: Round2Test,
       },
       {
@@ -53,7 +54,7 @@ export const dashboardRoutes = [
         label: "Round 2 Interview",
         path: "recruitment/round2-interview",
         to: "/dashboard/recruitment/round2-interview",
-        permission: "recruitment.round2_int.view",
+        permission: "recruitment.round2int.view",
         element: Round2Interview,
       },
       {
@@ -63,6 +64,14 @@ export const dashboardRoutes = [
         to: "/dashboard/recruitment/round3",
         permission: "recruitment.round3.view",
         element: Round3Department,
+      },
+      {
+        id: "final-approval",
+        label: "Final Approval",
+        path: "recruitment/final-approval",
+        to: "/dashboard/recruitment/final-approval",
+        permission: "recruitment.round3.view",
+        element: FinalApproval,
       },
     ],
   },
