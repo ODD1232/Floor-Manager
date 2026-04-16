@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 const Login = () => {
   const [formData, setFormData] = useState({ employeeId: "", password: "" });
@@ -8,7 +9,9 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+
   const navigate = useNavigate();
+  const { loginUser } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,20 +22,20 @@ const Login = () => {
       const res = await api.post("/auth/login", formData);
       const payload = res.data?.data || res.data;
 
-      if (payload?.token) {
-        localStorage.setItem("token", payload.token);
-      }
-
-      if (payload?.user) {
-        localStorage.setItem("user", JSON.stringify(payload.user));
-      } else {
+      if (!payload?.user) {
         throw new Error("User object missing in login response");
       }
+
+      loginUser(payload.user, payload.token);
 
       setSuccess(true);
       setTimeout(() => navigate("/dashboard"), 800);
     } catch (err) {
-      setError(err.response?.data?.message || err.message || "Invalid credentials. Please try again.");
+      setError(
+        err.response?.data?.message ||
+          err.message ||
+          "Invalid credentials. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -84,7 +87,10 @@ const Login = () => {
               placeholder="Enter employee ID"
               value={formData.employeeId}
               onChange={(e) =>
-                setFormData((prev) => ({ ...prev, employeeId: e.target.value }))
+                setFormData((prev) => ({
+                  ...prev,
+                  employeeId: e.target.value,
+                }))
               }
               style={{
                 width: "100%",
@@ -116,7 +122,10 @@ const Login = () => {
                 placeholder="Enter password"
                 value={formData.password}
                 onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, password: e.target.value }))
+                  setFormData((prev) => ({
+                    ...prev,
+                    password: e.target.value,
+                  }))
                 }
                 style={{
                   width: "100%",

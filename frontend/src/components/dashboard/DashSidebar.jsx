@@ -36,11 +36,9 @@ const DashSidebar = () => {
 
   return (
     <div>
-      <div style={{ marginBottom: 24 }}>
-        <h2 style={{ margin: 0, fontSize: 20, color: "#111827" }}>Admin Panel</h2>
-        <p style={{ margin: "6px 0 0", fontSize: 13, color: "#6b7280" }}>
-          Role based navigation
-        </p>
+      <div className="dash-brand">
+        <h2 className="dash-brand__title">Admin Panel</h2>
+        <p className="dash-brand__sub">Role based navigation</p>
       </div>
 
       {groups.length === 0 ? (

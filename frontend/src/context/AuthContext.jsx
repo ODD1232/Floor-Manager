@@ -4,37 +4,52 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem("auth-user");
-    return saved ? JSON.parse(saved) : null;
+    try {
+      const saved = localStorage.getItem("user");
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
   });
 
-  const loginUser = (userData) => {
+  const loginUser = (userData, token = null) => {
     setUser(userData);
-    localStorage.setItem("auth-user", JSON.stringify(userData));
+    localStorage.setItem("user", JSON.stringify(userData));
+
+    if (token) {
+      localStorage.setItem("token", token);
+    }
   };
 
   const logoutUser = () => {
     setUser(null);
-    localStorage.removeItem("auth-user");
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
   };
 
   const hasPermission = (permissionKey) => {
-    if (!user?.permissions) return false;
-    return user.permissions.includes(permissionKey);
-  };
+  if (user?.isSuperAdmin) return true;
+  if (!user?.permissions) return false;
+  return user.permissions.includes(permissionKey);
+};
 
   const hasAnyPermission = (permissionKeys = []) => {
-    if (!user?.permissions) return false;
-    return permissionKeys.some((key) => user.permissions.includes(key));
-  };
+  if (user?.isSuperAdmin) return true;
+  if (!user?.permissions) return false;
+  return permissionKeys.some((key) => user.permissions.includes(key));
+};
 
-  const value = useMemo(() => ({
-    user,
-    loginUser,
-    logoutUser,
-    hasPermission,
-    hasAnyPermission,
-  }), [user]);
+  const value = useMemo(
+    () => ({
+      user,
+      loginUser,
+      logoutUser,
+      hasPermission,
+      hasAnyPermission,
+      isAuthenticated: !!user,
+    }),
+    [user]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

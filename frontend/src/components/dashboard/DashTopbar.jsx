@@ -11,70 +11,23 @@ const DashTopbar = () => {
   };
 
   return (
-    <div
-      style={{
-        width: "100%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: 16,
-      }}
-    >
+    <div className="dash-topbar-shell">
       <div>
-        <h1
-          style={{
-            margin: 0,
-            fontSize: 22,
-            lineHeight: 1.2,
-            color: "#111827",
-          }}
-        >
-          Dashboard
-        </h1>
-        <p
-          style={{
-            margin: "4px 0 0",
-            fontSize: 14,
-            color: "#6b7280",
-          }}
-        >
+        <h1 className="page-title">Dashboard</h1>
+        <p className="page-subtitle">
           Welcome{user?.name ? `, ${user.name}` : ""}
         </p>
       </div>
 
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-        }}
-      >
-        <div
-          style={{
-            textAlign: "right",
-          }}
-        >
-          <div style={{ fontSize: 14, fontWeight: 600, color: "#111827" }}>
-            {user?.name || "User"}
-          </div>
-          <div style={{ fontSize: 12, color: "#6b7280" }}>
+      <div className="dash-topbar-actions">
+        <div className="dash-user-meta">
+          <div className="dash-user-name">{user?.name || "User"}</div>
+          <div className="dash-user-id">
             {user?.employeeId || user?.email || "Logged in"}
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={handleLogout}
-          style={{
-            padding: "10px 14px",
-            borderRadius: 10,
-            border: "1px solid #d1d5db",
-            background: "#ffffff",
-            color: "#111827",
-            cursor: "pointer",
-            fontWeight: 600,
-          }}
-        >
+        <button type="button" onClick={handleLogout} className="dash-logout-btn">
           Logout
         </button>
       </div>

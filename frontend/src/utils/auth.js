@@ -15,17 +15,25 @@ export const getPermissions = () => {
   return Array.isArray(user?.permissions) ? user.permissions : [];
 };
 
+export const isSuperAdmin = () => {
+  const user = getUser();
+  return user?.isSuperAdmin === true;
+};
+
 export const hasPermission = (permission) => {
   if (!permission) return true;
+  if (isSuperAdmin()) return true;
   return getPermissions().includes(permission);
 };
 
 export const hasAnyPermission = (permissions = []) => {
+  if (isSuperAdmin()) return true;
   const currentPermissions = getPermissions();
   return permissions.some((permission) => currentPermissions.includes(permission));
 };
 
 export const hasAllPermissions = (permissions = []) => {
+  if (isSuperAdmin()) return true;
   const currentPermissions = getPermissions();
   return permissions.every((permission) => currentPermissions.includes(permission));
 };

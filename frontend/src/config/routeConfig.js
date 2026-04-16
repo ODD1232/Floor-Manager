@@ -46,7 +46,7 @@ export const dashboardRoutes = [
         label: "Round 2 Test",
         path: "recruitment/round2-test",
         to: "/dashboard/recruitment/round2-test",
-        permission: "recruitment.round2test.view",
+        permission: "recruitment.round2_test.view",
         element: Round2Test,
       },
       {
@@ -54,7 +54,7 @@ export const dashboardRoutes = [
         label: "Round 2 Interview",
         path: "recruitment/round2-interview",
         to: "/dashboard/recruitment/round2-interview",
-        permission: "recruitment.round2int.view",
+        permission: "recruitment.round2_int.view",
         element: Round2Interview,
       },
       {

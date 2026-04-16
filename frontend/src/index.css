@@ -4,21 +4,73 @@
 
 @layer base {
   html {
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'DM Sans', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg-root, #f3f6fb);
+    color: var(--text-primary, #0f172a);
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
   }
 }
 
 @layer components {
   .input-field {
-    @apply w-full px-4 py-4 bg-white/60 border border-white/50 rounded-2xl 
-           focus:ring-4 focus:ring-blue-500/30 focus:border-blue-500/50 
-           transition-all duration-300 placeholder-gray-400 text-gray-900 shadow-lg;
+    @apply w-full px-4 py-3 rounded-xl transition-all duration-200 shadow-sm;
+    background: var(--bg-input, #ffffff);
+    color: var(--text-input, #0f172a);
+    border: 1px solid var(--border-input, rgba(15, 23, 42, 0.14));
   }
-  
+
+  .input-field::placeholder {
+    color: var(--text-placeholder, #64748b);
+  }
+
+  .input-field:focus {
+    outline: none;
+    border-color: var(--text-accent, #4f46e5);
+    box-shadow: 0 0 0 3px var(--ring-focus, rgba(79, 70, 229, 0.16));
+    background: var(--bg-input-focus, #f5f7ff);
+  }
+
   .btn-primary {
-    @apply w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 
-           text-white font-semibold py-4 px-6 rounded-2xl shadow-2xl hover:shadow-xl 
-           transform hover:-translate-y-1 active:translate-y-0 transition-all duration-200 
-           focus:outline-none focus:ring-4 focus:ring-blue-500/50;
+    @apply w-full text-white font-semibold py-3 px-5 rounded-xl transition-all duration-200;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    box-shadow: 0 12px 28px rgba(79, 70, 229, 0.22);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.02);
+  }
+
+  .btn-primary:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--ring-focus, rgba(79, 70, 229, 0.16));
   }
 }
