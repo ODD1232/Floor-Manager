@@ -27,55 +27,49 @@ model Contractor {
 }
 
 model Candidate {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                   Int           @id @default(autoincrement())
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
 
-  // ── Round 1 basic info ─────────────────────────────────────────────────────
-  name          String
-  phone         String
-  aadharNo      String @unique
-  qualification String
+  name                 String
+  employeeId           String?
+  phone                String
+  aadharNo             String        @unique
+  qualification        String
 
-  // ── File paths (stored by multer, served as /uploads/...) ─────────────────
-  photoPath       String? // candidate photo
-  aadharPhotoPath String? // aadhar card photo
-  resumePath      String? // resume PDF
+  photoPath            String?
+  aadharPhotoPath      String?
+  resumePath           String?
 
-  // ── Experience (optional) ──────────────────────────────────────────────────
-  hasExperience        Boolean @default(false)
+  hasExperience        Boolean       @default(false)
   prevPosition         String?
   prevCompany          String?
   prevLocation         String?
   experienceLetterPath String?
   relevanceLetterPath  String?
 
-  // ── Contract details (optional) ────────────────────────────────────────────
-  wasOnContract    Boolean     @default(false)
-  contractDuration String? // e.g. "6 months"
-  contractorId     Int?
-  contractor       Contractor? @relation(fields: [contractorId], references: [id])
+  wasOnContract        Boolean       @default(false)
+  contractDuration     String?
 
-  // ── Classification (filled after Round 1) ──────────────────────────────────
-  skillLevel   SkillLevel? // skilled / highly_skilled / unskilled
-  department   String?
-  isClassified Boolean     @default(false)
+  contractorId         Int?
+  contractor           Contractor?   @relation(fields: [contractorId], references: [id])
 
-  // ── Round tracking ─────────────────────────────────────────────────────────
-  currentRound  Int             @default(1) // 1, 2, 3
-  round2Type    Round2Type? // test OR interview
-  round21Status RoundStatus? // pass/fail for test
-  round22Status RoundStatus? // pass/fail for interview
-  round3Status  RoundStatus? // final dept approval
-  overallStatus CandidateStatus @default(PENDING)
+  skillLevel           SkillLevel?
+  department           String?
+  isClassified         Boolean       @default(false)
 
-  // ── Digital signature (Round 3) ────────────────────────────────────────────
-  signaturePath String?
-  signedById    Int?
-  signedAt      DateTime?
+  currentRound         Int           @default(1)
+  round2Type           Round2Type?
+  round21Status        RoundStatus?
+  round22Status        RoundStatus?
+  round3Status         RoundStatus?
+  overallStatus        CandidateStatus @default(PENDING)
 
-  // ── Notes / remarks ────────────────────────────────────────────────────────
-  remarks String?
+  signaturePath        String?
+  signedById           Int?
+  signedAt             DateTime?
+
+  remarks              String?
 }
 
 model Permission {
