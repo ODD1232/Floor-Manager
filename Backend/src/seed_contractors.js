@@ -1,33 +1,39 @@
-// backend/src/routes/candidates.js
-const express  = require('express');
-const router   = express.Router();
-const ctrl     = require('../src/controllers/Candidatecontroller');
-const { candidateUpload, signatureUpload } = require('../src/middleware/Upload');
-// const auth  = require('../middleware/auth');   // uncomment when ready
+// Backend/src/seed_contractors.js
+const { PrismaClient } = require('@prisma/client');
 
-// ── Contractors dropdown ──────────────────────────────────────────────────────
-router.get('/contractors', ctrl.getContractors);
+const prisma = new PrismaClient();
 
-// ── Candidate list & detail ───────────────────────────────────────────────────
-router.get('/',    ctrl.getCandidates);
-router.get('/:id', ctrl.getCandidate);
+const CONTRACTORS = [
+  { name: 'KIRAN SERVICES Pvt Ltd' },
+  { name: 'SRIVARI ENTERPRICES Services' },
+  { name: 'SREE VEERANJANEVA MANPOWER SERVICES' },
+  { name: 'SAPTAGIRI ENTERPRICES ' },
+  { name: 'HSN TECH SOLUITONS' },
+  { name: 'QUESS CORP LTD' }
+];
 
-// ── Round 1 — create ─────────────────────────────────────────────────────────
-router.post('/', candidateUpload, ctrl.createCandidate);
+async function main() {
+  console.log('🌱 Seeding contractors...');
 
-// ── Move to Round 2 ───────────────────────────────────────────────────────────
-router.patch('/move-to-round2', ctrl.moveToRound2);
+  for (const contractor of CONTRACTORS) {
+    await prisma.contractor.upsert({
+      where: { name: contractor.name },
+      update: {},
+      create: contractor,
+    });
 
-// ── Round 2.1 — test result ───────────────────────────────────────────────────
-router.patch('/:id/round21', ctrl.updateRound21);
+    console.log(`✅ Added/exists: ${contractor.name}`);
+  }
 
-// ── Round 2.2 — bulk interview result ────────────────────────────────────────
-router.patch('/round22', ctrl.updateRound22);
+  const total = await prisma.contractor.count();
+  console.log(`🎉 Contractors seeding completed. Total contractors: ${total}`);
+}
 
-// ── Dump (bulk reject) ────────────────────────────────────────────────────────
-router.patch('/dump', ctrl.dumpCandidates);
-
-// ── Round 3 — approve + signature ────────────────────────────────────────────
-router.patch('/:id/approve', signatureUpload, ctrl.approveCandidate);
-
-module.exports = router;
+main()
+  .catch((e) => {
+    console.error('❌ Seed contractors error:', e);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });

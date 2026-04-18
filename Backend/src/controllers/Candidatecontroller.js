@@ -1,6 +1,7 @@
 const prisma = require("../config/prisma");
 
-const filePath = (files, field) => files?.[field]?.[0]?.path?.replace(/\\/g, "/") || null;
+const filePath = (files, field) =>
+  files?.[field]?.[0]?.path?.replace(/\\/g, "/") || null;
 
 const createCandidate = async (req, res) => {
   try {
@@ -89,7 +90,15 @@ const createCandidate = async (req, res) => {
 
 const getCandidates = async (req, res) => {
   try {
-    const { round, status, department, skillLevel, contractorId, search, classified } = req.query;
+    const {
+      round,
+      status,
+      department,
+      skillLevel,
+      contractorId,
+      search,
+      classified,
+    } = req.query;
 
     const where = {};
 
@@ -167,6 +176,11 @@ const classifyCandidate = async (req, res) => {
         department,
         isClassified: true,
       },
+      include: {
+        contractor: {
+          select: { id: true, name: true },
+        },
+      },
     });
 
     return res.json({
@@ -176,6 +190,44 @@ const classifyCandidate = async (req, res) => {
   } catch (err) {
     return res.status(500).json({
       message: "Failed to classify.",
+      error: err.message,
+    });
+  }
+};
+
+const updateCandidateProfileFields = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { skillLevel, department } = req.body;
+
+    if (!skillLevel || !department) {
+      return res.status(400).json({
+        message: "skillLevel and department are required.",
+      });
+    }
+
+    const candidate = await prisma.candidate.update({
+      where: { id },
+      data: {
+        skillLevel,
+        department,
+        isClassified: true,
+      },
+      include: {
+        contractor: {
+          select: { id: true, name: true },
+        },
+      },
+    });
+
+    return res.json({
+      message: "Candidate profile fields updated.",
+      candidate,
+    });
+  } catch (err) {
+    console.error("UPDATE PROFILE FIELDS ERROR:", err);
+    return res.status(500).json({
+      message: "Failed to update candidate profile fields.",
       error: err.message,
     });
   }
@@ -219,6 +271,62 @@ const updateRound21 = async (req, res) => {
   }
 };
 
+const updateRound21Bulk = async (req, res) => {
+  try {
+    const { updates } = req.body;
+
+    if (!updates?.length) {
+      return res.status(400).json({ message: "updates array required." });
+    }
+
+    const errors = [];
+    const ops = [];
+
+    for (const { id, status } of updates) {
+      const c = await prisma.candidate.findUnique({
+        where: { id: Number(id) },
+      });
+
+      if (!c) {
+        errors.push(`${id} not found`);
+        continue;
+      }
+
+      if (status === "passed" && !c.isClassified) {
+        errors.push(`${c.name || id} not classified`);
+        continue;
+      }
+
+      ops.push(
+        prisma.candidate.update({
+          where: { id: Number(id) },
+          data: {
+            round21Status: status,
+            currentRound: status === "passed" ? 3 : 2,
+            overallStatus: status === "passed" ? "IN_ROUND3" : "REJECTED",
+          },
+        })
+      );
+    }
+
+    if (ops.length) {
+      await prisma.$transaction(ops);
+    }
+
+    const msg = errors.length
+      ? `${ops.length} updated. Blocked: ${errors.join(", ")}`
+      : `${ops.length} candidates updated.`;
+
+    return res.json({ message: msg, blocked: errors });
+  } catch (err) {
+    console.error("UPDATE ROUND 2.1 BULK ERROR:", err);
+    return res.status(500).json({
+      message: "Failed to update Round 2.1.",
+      error: err.message,
+    });
+  }
+};
+
 const updateRound22 = async (req, res) => {
   try {
     const { updates } = req.body;
@@ -235,6 +343,7 @@ const updateRound22 = async (req, res) => {
         const c = await prisma.candidate.findUnique({
           where: { id: Number(id) },
         });
+
         if (!c?.isClassified) {
           errors.push(`${c?.name || id} not classified`);
           continue;
@@ -393,7 +502,9 @@ module.exports = {
   getCandidates,
   getCandidate,
   classifyCandidate,
+  updateCandidateProfileFields,
   updateRound21,
+  updateRound21Bulk,
   updateRound22,
   dumpCandidates,
   updateRound3Details,
