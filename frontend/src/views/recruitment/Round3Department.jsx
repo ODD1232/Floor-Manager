@@ -109,6 +109,14 @@ export default function Round3Department() {
     }
   };
 
+  const resetEditModal = () => {
+    setEditModal(null);
+    setEmployeeId("");
+    setSkill("");
+    setDept("");
+    setRemarks("");
+  };
+
   return (
     <div className="view-panel" style={{ maxWidth: 1120 }}>
       <div className="rec-header">
@@ -154,6 +162,12 @@ export default function Round3Department() {
           note="Came through the interview route."
           color="#4f46e5"
         />
+        <StatCard
+          label="With Signature"
+          value={approvedWithSignature}
+          note="Candidates already carrying a signature."
+          color="#16a34a"
+        />
       </div>
 
       <div className="rec-card">
@@ -174,43 +188,6 @@ export default function Round3Department() {
             />
           </div>
 
-          <select
-            className="rec-filter-select"
-            value={filterDept}
-            onChange={(e) => setFilterDept(e.target.value)}
-          >
-            {DEPARTMENTS.map((d) => (
-              <option key={d} value={d}>
-                {d || "All Departments"}
-              </option>
-            ))}
-          </select>
-
-          <select
-            className="rec-filter-select"
-            value={filterSkill}
-            onChange={(e) => setFilterSkill(e.target.value)}
-          >
-            {SKILL_LEVELS.map((s) => (
-              <option key={s} value={s}>
-                {s ? s.replace("_", " ") : "All Skills"}
-              </option>
-            ))}
-          </select>
-
-          <select
-            className="rec-filter-select"
-            value={filterContractor}
-            onChange={(e) => setFilterContractor(e.target.value)}
-          >
-            <option value="">All Contractors</option>
-            {contractors.map((c) => (
-              <option key={c.id} value={String(c.id)}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-
           <button className="rec-btn rec-btn-ghost rec-btn-sm" onClick={load}>
             ↻ Refresh
           </button>
@@ -226,98 +203,142 @@ export default function Round3Department() {
           </div>
           <p>Loading department review candidates...</p>
         </div>
-      ) : filtered.length === 0 ? (
-        <div className="rec-empty">
-          <div className="rec-empty-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-              <polyline points="22 4 12 14.01 9 11.01" />
-            </svg>
-          </div>
-          <p>No candidates are waiting for department review.</p>
-        </div>
       ) : (
         <>
-          <div className="rec-section-label">
-            Review Queue • {filtered.length} candidate{filtered.length > 1 ? "s" : ""}
+          <div className="rec-table-head">
+            <div className="rec-section-label">
+              Review Queue • {filtered.length} candidate{filtered.length !== 1 ? "s" : ""}
+            </div>
+
+            <div className="rec-table-corner-filters">
+              <select
+                className="rec-filter-select rec-filter-select-sm"
+                value={filterDept}
+                onChange={(e) => setFilterDept(e.target.value)}
+              >
+                <option value="">All Departments</option>
+                {DEPARTMENTS.filter(Boolean).map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                className="rec-filter-select rec-filter-select-sm"
+                value={filterSkill}
+                onChange={(e) => setFilterSkill(e.target.value)}
+              >
+                <option value="">All Skills</option>
+                {SKILL_LEVELS.filter(Boolean).map((s) => (
+                  <option key={s} value={s}>
+                    {s.replace("_", " ")}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                className="rec-filter-select rec-filter-select-sm"
+                value={filterContractor}
+                onChange={(e) => setFilterContractor(e.target.value)}
+              >
+                <option value="">All Contractors</option>
+                {contractors.map((c) => (
+                  <option key={c.id} value={String(c.id)}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <div className="rec-table-wrap">
-            <table className="rec-table">
-              <thead>
-                <tr>
-                  <th>Candidate</th>
-                  <th>Aadhar</th>
-                  <th>Employee ID</th>
-                  <th>Department</th>
-                  <th>Skill</th>
-                  <th>Contractor</th>
-                  <th>Cleared Via</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((c) => (
-                  <tr key={c.id}>
-                    <td>
-                      <div className="cand-profile">
-                        <div
-                          className="cand-avatar"
-                          style={{ width: 42, height: 42, fontSize: "0.95rem", borderRadius: 10 }}
-                        >
-                          {c.photoPath ? (
-                            <img
-                              src={`http://localhost:5009/${c.photoPath}`}
-                              alt={c.name}
-                            />
-                          ) : (
-                            c.name.charAt(0).toUpperCase()
-                          )}
-                        </div>
-                        <div>
-                          <div className="cand-name">{c.name}</div>
-                          <div className="cand-meta">
-                            {c.qualification || "Qualification not added"} ·{" "}
-                            {c.phone || "No phone"}
+          {filtered.length === 0 ? (
+            <div className="rec-empty">
+              <div className="rec-empty-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                  <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+              </div>
+              <p>No candidates match the selected filters.</p>
+            </div>
+          ) : (
+            <div className="rec-table-wrap">
+              <table className="rec-table">
+                <thead>
+                  <tr>
+                    <th>Candidate</th>
+                    <th>Aadhar</th>
+                    <th>Employee ID</th>
+                    <th>Department</th>
+                    <th>Skill</th>
+                    <th>Contractor</th>
+                    <th>Cleared Via</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((c) => (
+                    <tr key={c.id}>
+                      <td>
+                        <div className="cand-profile">
+                          <div
+                            className="cand-avatar"
+                            style={{ width: 42, height: 42, fontSize: "0.95rem", borderRadius: 10 }}
+                          >
+                            {c.photoPath ? (
+                              <img
+                                src={`http://localhost:5009/${c.photoPath}`}
+                                alt={c.name}
+                              />
+                            ) : (
+                              c.name.charAt(0).toUpperCase()
+                            )}
+                          </div>
+                          <div>
+                            <div className="cand-name">{c.name}</div>
+                            <div className="cand-meta">
+                              {c.qualification || "Qualification not added"} · {c.phone || "No phone"}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </td>
-                    <td className="rec-mono">{c.aadharNo}</td>
-                    <td className="rec-mono">
-                      {c.employeeId || <span className="rec-cell-muted">—</span>}
-                    </td>
-                    <td className="rec-cell-muted">{c.department || "—"}</td>
-                    <td>
-                      {c.skillLevel ? (
-                        <span className="badge badge-r2">{c.skillLevel.replace("_", " ")}</span>
-                      ) : (
-                        <span className="rec-cell-muted">—</span>
-                      )}
-                    </td>
-                    <td className="rec-cell-muted">{c.contractor?.name || "—"}</td>
-                    <td>
-                      <RoundBadge c={c} />
-                    </td>
-                    <td>
-                      <button
-                        className="rec-btn rec-btn-primary rec-btn-sm"
-                        onClick={() => {
-                          setEditModal(c);
-                          setEmployeeId(c.employeeId || "");
-                          setSkill(c.skillLevel || "");
-                          setDept(c.department || "");
-                          setRemarks(c.remarks || "");
-                        }}
-                      >
-                        ✏ Edit
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                      </td>
+                      <td className="rec-mono">{c.aadharNo}</td>
+                      <td className="rec-mono">
+                        {c.employeeId || <span className="rec-cell-muted">—</span>}
+                      </td>
+                      <td className="rec-cell-muted">{c.department || "—"}</td>
+                      <td>
+                        {c.skillLevel ? (
+                          <span className="badge badge-r2">{c.skillLevel.replace("_", " ")}</span>
+                        ) : (
+                          <span className="rec-cell-muted">—</span>
+                        )}
+                      </td>
+                      <td className="rec-cell-muted">{c.contractor?.name || "—"}</td>
+                      <td>
+                        <RoundBadge c={c} />
+                      </td>
+                      <td>
+                        <button
+                          className="rec-btn rec-btn-primary rec-btn-sm"
+                          onClick={() => {
+                            setEditModal(c);
+                            setEmployeeId(c.employeeId || "");
+                            setSkill(c.skillLevel || "");
+                            setDept(c.department || "");
+                            setRemarks(c.remarks || "");
+                          }}
+                        >
+                          ✏ Edit
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </>
       )}
 
@@ -331,15 +352,9 @@ export default function Round3Department() {
 
             <div className="rec-inline-card">
               <div className="cand-profile">
-                <div
-                  className="cand-avatar"
-                  style={{ width: 52, height: 52, borderRadius: 12 }}
-                >
+                <div className="cand-avatar" style={{ width: 52, height: 52, borderRadius: 12 }}>
                   {editModal.photoPath ? (
-                    <img
-                      src={`http://localhost:5009/${editModal.photoPath}`}
-                      alt={editModal.name}
-                    />
+                    <img src={`http://localhost:5009/${editModal.photoPath}`} alt={editModal.name} />
                   ) : (
                     editModal.name.charAt(0).toUpperCase()
                   )}
@@ -347,7 +362,7 @@ export default function Round3Department() {
                 <div>
                   <div className="cand-name">{editModal.name}</div>
                   <p className="cand-meta">
-                    {editModal.aadharNo} · {editModal.department || "No department"} ·
+                    {editModal.aadharNo} · {editModal.department || "No department"} ·{" "}
                     {editModal.skillLevel?.replace("_", " ") || "No skill"}
                   </p>
                 </div>
@@ -408,16 +423,7 @@ export default function Round3Department() {
             </div>
 
             <div className="rec-modal-actions">
-              <button
-                className="rec-btn rec-btn-ghost"
-                onClick={() => {
-                  setEditModal(null);
-                  setEmployeeId("");
-                  setSkill("");
-                  setDept("");
-                  setRemarks("");
-                }}
-              >
+              <button className="rec-btn rec-btn-ghost" onClick={resetEditModal}>
                 Cancel
               </button>
               <button

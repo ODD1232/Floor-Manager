@@ -795,3 +795,27 @@
   font-size:12px;
   border-radius:10px;
 }
+.rec-table-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:10px;
+  flex-wrap:wrap;
+}
+
+.rec-table-corner-filters{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-left:auto;
+}
+
+.rec-filter-select-sm{
+  min-width:150px;
+  height:34px;
+  padding:6px 10px;
+  font-size:12px;
+  border-radius:10px;
+}
+

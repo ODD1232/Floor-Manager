@@ -10,8 +10,11 @@ export const getCandidate = (id) => axios.get(`${BASE}/${id}`);
 export const classifyCandidate = (id, skillLevel, department) =>
   axios.patch(`${BASE}/${id}/classify`, { skillLevel, department });
 
-export const updateRound21 = (id, status) =>
-  axios.patch(`${BASE}/${id}/round21`, { status });
+export const updateCandidateProfileFields = (id, payload) =>
+  axios.patch(`${BASE}/${id}/profile-fields`, payload);
+
+export const updateRound21 = (updates) =>
+  axios.patch(`${BASE}/round21`, { updates });
 
 export const updateRound22 = (updates) =>
   axios.patch(`${BASE}/round22`, { updates });
